@@ -1,4 +1,4 @@
-// Last update: 2024/10/06
+// Last update: 2024/10/17
 // Author: Ricard Arbat Carandell
 
 // Master in Aerospace Engineering - Computational Engineering
@@ -9,91 +9,75 @@
 #include <vector>
 #include <cmath>
 #include <fstream>
+#include <string>
+#include <sstream>
 #include "parameters.cpp"
 using namespace std;
 
 // node struct
 struct node
 {
-    double x, y, u, v, cp, stream, rho, T, p;
-    bool is_solid;
+    double x, y, u, v, phi;
 };
 
 /**
  * Fills the mesh with nodes as it defines their positions.
- * Also defines the cylinder solid nodes by considering if they are inside a circle
  *
  * @param mesh Mesh matrix (vector of vectors) to be filled with Node structs
- * @param p Parameters of the simulation
  */
-void buildMesh(vector<vector<node>> &mesh, Parameters p)
+void buildMesh(vector<vector<vector<node>>> &mesh)
 {
-
-    for (int i = 0; i < N; i++)
+    for (int t = 0; t < time_steps; t++)
     {
-        for (int j = 0; j < M; j++)
+        for (int i = 0; i < N; i++)
         {
-            mesh[i][j].x = (i * p.dx) + 0.5 * p.dx;
-            mesh[i][j].y = (j * p.dy) + 0.5 * p.dy;
-
-            double dist = sqrt(pow(mesh[i][j].x - p.cylinder_x, 2) + pow(mesh[i][j].y - p.cylinder_y, 2));
-            if (dist < p.cylinder_r)
+            for (int j = 0; j < M; j++)
             {
-                mesh[i][j].is_solid = true;
-            }
-            else
-            {
-                mesh[i][j].is_solid = false;
+                mesh[t][i][j].x = (i * dx) + 0.5 * dx;
+                mesh[t][i][j].y = (j * dy) + 0.5 * dy;
             }
         }
     }
 }
 
 /**
- * Sets the initial density of the mesh nodes.
- * Also checks if the node is solid and sets the solid density
+ * sets the initial density of the mesh nodes.
+ * also checks if the node is solid and sets the solid density
  *
- * @param mesh Mesh matrix
- * @param p Parameters of the simulation
+ * @param mesh mesh matrix
  */
-void setRho(vector<vector<node>> &mesh, Parameters p)
+void setMeshValue(vector<vector<node>> &mesh_t, float variable, string name)
 {
     for (int i = 0; i < N; i++)
     {
         for (int j = 0; j < M; j++)
         {
-            if (mesh[i][j].is_solid == true)
+            if (name == "u")
             {
-                mesh[i][j].rho = p.solid_density;
+                mesh_t[i][j].u = variable;
             }
-            else
+            else if (name == "v")
             {
-                mesh[i][j].rho = p.initial_density;
+                mesh_t[i][j].v = variable;
+            }
+            else if (name == "phi")
+            {
+                mesh_t[i][j].phi = variable;
             }
         }
     }
 }
 
-/**
- * Sets the initial stream value of the mesh nodes.
- * Also checks if the node is solid and sets the solid density.
- *
- * @param mesh Mesh matrix
- * @param p Parameters of the simulation
- */
-void setStream(vector<vector<node>> &mesh, Parameters p)
+void setSmithHuttonProblem(vector<vector<vector<node>>> &mesh)
 {
-    for (int i = 0; i < N; i++)
+    for (int t = 0; t < time_steps; t++)
     {
-        for (int j = 0; j < M; j++)
+        for (int i = 0; i < N; i++)
         {
-            if (mesh[i][j].is_solid)
+            for (int j = 0; j < M; j++)
             {
-                mesh[i][j].stream = p.solid_stream;
-            }
-            else
-            {
-                mesh[i][j].stream = p.start_stream;
+                mesh[t][i][j].u = 2 * mesh[t][i][j].y * (1 - (mesh[t][i][j].x * mesh[t][i][j].x));
+                mesh[t][i][j].v = -2 * mesh[t][i][j].x * (1 - (mesh[t][i][j].y * mesh[t][i][j].y));
             }
         }
     }
@@ -102,19 +86,36 @@ void setStream(vector<vector<node>> &mesh, Parameters p)
 /**
  * Exports the mesh data to a CSV file
  *
- * @param mesh Mesh matrix
+ * @param mesh Mesh matrix at time t
  * @param filename Name of the file to be exported
- */
-void exportData(vector<vector<node>> &mesh, string filename = "output/output.csv")
+ **/
+void exportData(vector<vector<node>> &mesh_t, string filename = "output/output.csv")
 {
+
     ofstream outfile(filename);
-    outfile << "X,Y,U,V,Stream,Density,Cp,Solid,P,T" << endl;
+    outfile << "X,Y,U,V,phi" << endl;
     for (int i = 1; i < N - 1; i += 1)
     {
         for (int j = 1; j < M - 1; j += 1)
         {
-            outfile << mesh[i][j].x << "," << mesh[i][j].y << "," << mesh[i][j].u << "," << mesh[i][j].v << "," << mesh[i][j].stream << "," << mesh[i][j].rho << "," << mesh[i][j].cp << "," << mesh[i][j].is_solid << "," << mesh[i][j].p << "," << mesh[i][j].T << endl;
+            outfile << mesh_t[i][j].x << "," << mesh_t[i][j].y << "," << mesh_t[i][j].u << "," << mesh_t[i][j].v << "," << mesh_t[i][j].phi << endl;
         }
     }
     outfile.close();
+}
+
+/**
+ * Makes a filename with the time and name
+ *
+ * @param time Time of the simulation
+ * @param name Name of the file
+ *
+ */
+string fileName(int time, string name = "output")
+{
+    std::ostringstream oss;
+    oss << "output/ " << name << "_t" << time << ".csv";
+    std::string var = oss.str();
+
+    return var;
 }
