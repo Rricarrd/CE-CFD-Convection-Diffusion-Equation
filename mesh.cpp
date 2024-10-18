@@ -25,7 +25,7 @@ struct node
  *
  * @param mesh Mesh matrix (vector of vectors) to be filled with Node structs
  */
-void buildMesh(vector<vector<vector<node>>> &mesh)
+void build_mesh(vector<vector<vector<node>>> &mesh)
 {
     for (int t = 0; t < time_steps; t++)
     {
@@ -33,8 +33,8 @@ void buildMesh(vector<vector<vector<node>>> &mesh)
         {
             for (int j = 0; j < M; j++)
             {
-                mesh[t][i][j].x = (i * dx) + 0.5 * dx;
-                mesh[t][i][j].y = (j * dy) + 0.5 * dy;
+                mesh[t][i][j].x = (i * dx) + (0.5 * dx);
+                mesh[t][i][j].y = (j * dy) + (0.5 * dy);
             }
         }
     }
@@ -46,7 +46,7 @@ void buildMesh(vector<vector<vector<node>>> &mesh)
  *
  * @param mesh mesh matrix
  */
-void setMeshValue(vector<vector<node>> &mesh_t, float variable, string name)
+void set_mesh_value(vector<vector<node>> &mesh_t, float variable, string name)
 {
     for (int i = 0; i < N; i++)
     {
@@ -68,7 +68,7 @@ void setMeshValue(vector<vector<node>> &mesh_t, float variable, string name)
     }
 }
 
-void setSmithHuttonProblem(vector<vector<vector<node>>> &mesh)
+void set_smith_hutton_problem(vector<vector<vector<node>>> &mesh)
 {
     for (int t = 0; t < time_steps; t++)
     {
@@ -76,8 +76,8 @@ void setSmithHuttonProblem(vector<vector<vector<node>>> &mesh)
         {
             for (int j = 0; j < M; j++)
             {
-                mesh[t][i][j].u = 2 * mesh[t][i][j].y * (1 - (mesh[t][i][j].x * mesh[t][i][j].x));
-                mesh[t][i][j].v = -2 * mesh[t][i][j].x * (1 - (mesh[t][i][j].y * mesh[t][i][j].y));
+                mesh[t][i][j].u = 2 * mesh[t][i][j].y * (1 - ((mesh[t][i][j].x - 1) * (mesh[t][i][j].x - 1)));
+                mesh[t][i][j].v = -2 * (mesh[t][i][j].x - 1) * (1 - (mesh[t][i][j].y * mesh[t][i][j].y));
             }
         }
     }
@@ -89,16 +89,19 @@ void setSmithHuttonProblem(vector<vector<vector<node>>> &mesh)
  * @param mesh Mesh matrix at time t
  * @param filename Name of the file to be exported
  **/
-void exportData(vector<vector<node>> &mesh_t, string filename = "output/output.csv")
+void export_data(vector<vector<vector<node>>> &mesh, string filename = "output/output.csv")
 {
 
     ofstream outfile(filename);
-    outfile << "X,Y,U,V,phi" << endl;
-    for (int i = 1; i < N - 1; i += 1)
+    outfile << "s,X,Y,U,V,phi" << endl;
+    for (int t = 0; t < time_steps; t++)
     {
-        for (int j = 1; j < M - 1; j += 1)
+        for (int i = 1; i < N - 1; i += 1)
         {
-            outfile << mesh_t[i][j].x << "," << mesh_t[i][j].y << "," << mesh_t[i][j].u << "," << mesh_t[i][j].v << "," << mesh_t[i][j].phi << endl;
+            for (int j = 1; j < M - 1; j += 1)
+            {
+                outfile << t * delta_t << "," << mesh[t][i][j].x << "," << mesh[t][i][j].y << "," << mesh[t][i][j].u << "," << mesh[t][i][j].v << "," << mesh[t][i][j].phi << endl;
+            }
         }
     }
     outfile.close();
@@ -111,11 +114,28 @@ void exportData(vector<vector<node>> &mesh_t, string filename = "output/output.c
  * @param name Name of the file
  *
  */
-string fileName(int time, string name = "output")
+string file_name(int time, string name = "output")
 {
     std::ostringstream oss;
-    oss << "output/ " << name << "_t" << time << ".csv";
+    oss << name << "_t" << time << ".csv";
     std::string var = oss.str();
 
     return var;
+}
+
+/**
+ * Prints the value of phi in the mesh graphically, like a matrix
+ *
+ * @param mesh Mesh matrix at time t
+ **/
+void print_phi_matrix(vector<vector<double>> &values)
+{
+    for (int i = 0; i < N; i++)
+    {
+        for (int j = 0; j < M; j++)
+        {
+            cout << values[i][j] << " ";
+        }
+        cout << endl;
+    }
 }

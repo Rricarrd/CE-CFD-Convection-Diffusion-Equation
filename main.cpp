@@ -10,7 +10,7 @@
 #include <vector>
 #include <cmath>
 #include <fstream>
-#include "compute_potential.cpp"
+#include "compute_diff_conv.cpp"
 #include <chrono>
 using namespace std;
 using namespace std::chrono;
@@ -22,19 +22,24 @@ using namespace std::chrono;
 int main(void)
 {
 
-    double Pe = 100; // Peclet number
+    double rho_to_gamma = 1;           // density to gamma ratio
+    double gamma = rho / rho_to_gamma; // diffusion coefficient
+    string scheme = "PDS";             // scheme to be used
 
     // Main mesh
     vector<vector<vector<node>>> mesh(time_steps, vector<vector<node>>(N, vector<node>(M)));
-    buildMesh(mesh); // creating the mesh
+    build_mesh(mesh); // creating the mesh
+    set_smith_hutton_problem(mesh);
+    set_mesh_value(mesh[0], 1, "phi");
 
     // Compute stream function
     auto start = high_resolution_clock::now();
-    computeStream(mesh); // stream solver
+    compute_diffusive_convective(mesh, gamma, scheme); // stream solver
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<microseconds>(stop - start);
-    calculateVelocity(mesh); // calculating velocity
-    calculateCp(mesh);       // calculating pressure coeficient distribution
+
+    // Export data
+    export_data(mesh, file_name(time_steps, "output"));
 
     // Print final results
     cout << "### CONVECTION DIFFUSION FLOW RESULTS ###" << endl;
