@@ -22,7 +22,7 @@ int main(void)
 {
     double Pe[] = {10, 1000, 1000000};                        // peclet numbers
     double gamma[] = {rho / Pe[0], rho / Pe[1], rho / Pe[2]}; // diffusion coefficient
-    string scheme = "PDS";                                    // scheme to be used
+    string scheme = "HDS";                                    // scheme to be used
     string type = "smith-hutton";                             // type of problem
 
     for (int i = 0; i < 3; i++)

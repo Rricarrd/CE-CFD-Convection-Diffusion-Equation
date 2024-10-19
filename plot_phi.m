@@ -42,9 +42,9 @@ end
 
 
 % Reshaping vectors
-X = reshape(flip(X),[M-2,N-2])
-Y = reshape(flip(Y),[M-2,N-2])
-phi = reshape(flip(phi),[M-2,N-2])
+X = reshape(flip(X),[M-2,N-2]);
+Y = reshape(flip(Y),[M-2,N-2]) - 0.5;
+phi = reshape(flip(phi),[M-2,N-2]);
 
 
 % PHI CONTOUR PLOT
@@ -64,5 +64,8 @@ xlabel('X-axis [m]');
 ylabel('Y-axis [m]');
 title(sprintf('Phi for Pe = %i', Pe),'Interpreter','latex');
 grid off
-colormap hot
+colormap jet
+
+saveas(figure(n_fig),sprintf('plots/output_Pe_%i_S_%s_M_%i_type_%s.png',Pe,scheme,M,type));
+
 end

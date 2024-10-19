@@ -20,31 +20,32 @@ using namespace std::chrono;
  */
 int main(void)
 {
-    double Pe = 1000000;                                    // peclet numbers
-    double gamma = rho / Pe;                                // diffusion coefficient
+    double Pe[] = {10, 1000, 1000000};                      // peclet numbers
     string schemes[] = {"UDS", "CDS", "HDS", "PDS", "EDS"}; // scheme to be used
     string type = "smith-hutton";                           // type of problem
 
-    ofstream outfile("schemes/" + file_name(Pe, "COMPARISON", "SCHEMES", type));
-
-    for (int i = 0; i < 5; i++)
+    for (int k = 0; k < 3; k++)
     {
-        // Main mesh
-        vector<vector<vector<node>>> mesh(time_steps, vector<vector<node>>(N, vector<node>(M)));
-        build_mesh(mesh, type); // creating the mesh
+        ofstream outfile("schemes/" + file_name(Pe[k], "COMPARISON_deltalow", "SCHEMES", type));
+        double gamma = rho / Pe[k];
+        for (int i = 0; i < 5; i++)
+        {
+            // Main mesh
+            vector<vector<vector<node>>> mesh(time_steps, vector<vector<node>>(N, vector<node>(M)));
+            build_mesh(mesh, type); // creating the mesh
 
-        set_mesh_value(mesh[0], 1, "phi");
+            set_mesh_value(mesh[0], 1, "phi");
 
-        // Compute stream function
-        auto start = high_resolution_clock::now();
-        compute_diffusive_convective(mesh, gamma, schemes[i], type); // stream solver
-        auto stop = high_resolution_clock::now();
-        auto duration = duration_cast<microseconds>(stop - start);
+            // Compute stream function
+            auto start = high_resolution_clock::now();
+            compute_diffusive_convective(mesh, gamma, schemes[i], type); // stream solver
+            auto stop = high_resolution_clock::now();
+            auto duration = duration_cast<microseconds>(stop - start);
 
-        // Export data    string path = folder + "/" + filename;
-
-        export_data_at_outlet(mesh, schemes[i], outfile);
+            // Export data    string path = folder + "/" + filename;
+            export_data_at_outlet(mesh, schemes[i], outfile);
+        }
+        outfile.close();
     }
-    outfile.close();
     return 0;
 }

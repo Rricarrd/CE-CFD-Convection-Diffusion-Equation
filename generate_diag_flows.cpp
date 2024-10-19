@@ -23,9 +23,12 @@ int main(void)
 {
     double Pe[] = {10, 1000, 1000000};                        // peclet numbers
     double gamma[] = {rho / Pe[0], rho / Pe[1], rho / Pe[2]}; // diffusion coefficient
-    string scheme = "PDS";                                    // scheme to be used
+    string scheme = "UDS";                                    // scheme to be used
     string type = "diagonal";                                 // type of problem
+
     N = M;
+    L = 1;
+    H = 1;
 
     for (int i = 0; i < 3; i++)
     {

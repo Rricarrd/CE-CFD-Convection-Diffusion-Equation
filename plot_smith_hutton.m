@@ -1,9 +1,9 @@
 % Parameters
 M = 64;
-t = "last"
+t = "last";
 type="smith-hutton";
-scheme="PDS";
-location = "smith_hutton"
+scheme="HDS";
+location = "smith_hutton";
 n_fig = 1;
 
 

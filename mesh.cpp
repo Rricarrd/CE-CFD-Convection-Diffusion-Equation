@@ -143,11 +143,12 @@ void export_data_at_outlet(vector<vector<vector<node>>> &mesh, string scheme, of
 
     string rows = scheme + ",";
 
-    int j = 1;
+    int j = 2;
     for (int i = N / 2; i < N - 1; i++)
     {
         string row = to_string(mesh[time_steps - 1][i][j].phi) + ",";
         rows.append(row);
+        cout << "x" << mesh[time_steps - 1][i][j].x << " y" << mesh[time_steps - 1][i][j].y << " phi" << mesh[time_steps - 1][i][j].phi << endl;
     }
     rows.append("\n");
 

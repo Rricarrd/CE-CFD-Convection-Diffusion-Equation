@@ -247,15 +247,15 @@ void evaluate_time_step_diagonal(int t, vector<vector<vector<node>>> &mesh, doub
         {
             for (int j = 0; j < M; j++)
             {
-                ue = -u0 * cos(45);
-                uw = u0 * cos(45);
-                vn = -u0 * sin(45);
-                vs = u0 * sin(45);
+                ue = u0 * cos(0.785398);
+                uw = u0 * cos(0.785398);
+                vn = u0 * sin(0.785398);
+                vs = u0 * sin(0.785398);
 
-                De = gamma * 1 * dy / dx;
-                Dw = gamma * 1 * dy / dx;
-                Dn = gamma * 1 * dx / dy;
-                Ds = gamma * 1 * dx / dy;
+                De = gamma * (dy / dx);
+                Dw = gamma * (dy / dx);
+                Dn = gamma * (dx / dy);
+                Ds = gamma * (dx / dy);
 
                 Fe = rho * dy * ue;
                 Fw = rho * dy * uw;

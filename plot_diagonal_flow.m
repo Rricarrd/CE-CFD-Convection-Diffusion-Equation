@@ -1,9 +1,9 @@
 % Parameters
-M = 100;
+M = 128;
 t = "last";
 type="diagonal";
-scheme="PDS";
-location = "diagonal"
+scheme="UDS";
+location = "diagonal";
 n_fig = 1;
 
 
