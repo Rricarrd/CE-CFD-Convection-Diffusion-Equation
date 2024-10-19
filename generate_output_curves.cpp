@@ -20,10 +20,10 @@ using namespace std::chrono;
  */
 int main(void)
 {
-    double Pe = 10;                                  // peclet numbers
-    double gamma = rho / Pe;                         // diffusion coefficient
-    string schemes[] = {"UDS", "CDS", "HDS", "PDS"}; // scheme to be used
-    string type = "smith-hutton";                    // type of problem
+    double Pe = 1000000;                                    // peclet numbers
+    double gamma = rho / Pe;                                // diffusion coefficient
+    string schemes[] = {"UDS", "CDS", "HDS", "PDS", "EDS"}; // scheme to be used
+    string type = "smith-hutton";                           // type of problem
 
     ofstream outfile("schemes/" + file_name(Pe, "COMPARISON", "SCHEMES", type));
 
