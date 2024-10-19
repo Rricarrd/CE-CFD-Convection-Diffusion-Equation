@@ -1,4 +1,4 @@
-// Last update: 2024/10/17
+// Last update: 2024/10/19
 // Author: Ricard Arbat Carandell
 
 // Master in Aerospace Engineering - Computational Engineering
@@ -24,6 +24,7 @@ struct node
  * Fills the mesh with nodes as it defines their positions.
  *
  * @param mesh Mesh matrix (vector of vectors) to be filled with Node structs
+ * @param type Type of problem to solve
  */
 void build_mesh(vector<vector<vector<node>>> &mesh, string type)
 {
@@ -40,27 +41,13 @@ void build_mesh(vector<vector<vector<node>>> &mesh, string type)
     }
 }
 
-// Set u and v to constant value
-void set_uv_constant_smith_hutton(vector<vector<vector<node>>> &mesh)
-{
-    for (int t = 0; t < time_steps; t++)
-    {
-        for (int i = 0; i < N; i++)
-        {
-            for (int j = 0; j < M; j++)
-            {
-                mesh[t][i][j].u = 2 * mesh[t][i][j].y * (1 - (mesh[t][i][j].x * mesh[t][i][j].x));
-                mesh[t][i][j].v = -2 * mesh[t][i][j].x * (1 - (mesh[t][i][j].y * mesh[t][i][j].y));
-            }
-        }
-    }
-}
-
 /**
- * sets the initial density of the mesh nodes.
+ * Sets the initial density of the mesh nodes.
  * also checks if the node is solid and sets the solid density
  *
- * @param mesh mesh matrix
+ * @param mesh_t Mesh matrix at time t
+ * @param variable Value to set
+ * @param name Name of the variable to set
  */
 void set_mesh_value(vector<vector<node>> &mesh_t, float variable, string name)
 {
@@ -89,6 +76,8 @@ void set_mesh_value(vector<vector<node>> &mesh_t, float variable, string name)
  *
  * @param mesh Mesh matrix at time t
  * @param filename Name of the file to be exported
+ * @param folder Folder where the file will be saved
+ * @param how_many How many time steps to export. Either "all" or "last".
  **/
 void export_data(vector<vector<vector<node>>> &mesh, string filename = "output.csv", string folder = "smith_hutton", string how_many = "all")
 {
@@ -136,7 +125,8 @@ void export_data(vector<vector<vector<node>>> &mesh, string filename = "output.c
  * Exports the mesh data to a CSV file
  *
  * @param mesh Mesh matrix at time t
- * @param filename Name of the file to be exported
+ * @param scheme Scheme used
+ * @param outfile File to write the data
  **/
 void export_data_at_outlet(vector<vector<vector<node>>> &mesh, string scheme, ofstream &outfile)
 {
@@ -158,21 +148,24 @@ void export_data_at_outlet(vector<vector<vector<node>>> &mesh, string scheme, of
 /**
  * Makes a filename with the time and name
  *
- * @param time Time of the simulation
+ * @param Pe Peclet number
+ * @param scheme Scheme used
  * @param name Name of the file
+ * @param type Type of problem
+ * @param delta_t Time step size
  *
  */
-string file_name(double Pe, string scheme, string name, string type)
+string file_name(double Pe, string scheme, string name, string type, double delta_t = 0.001)
 {
     std::ostringstream oss;
     if (Pe > 100000.0)
     {
         string Pe_s = "1000000";
-        oss << name << "_Pe_" << Pe_s << "_S_" << scheme << "_M_" << M << "_type_" << type << ".csv";
+        oss << name << "_Pe_" << Pe_s << "_S_" << scheme << "_M_" << M << "_type_" << type << "_t_" << delta_t << ".csv";
     }
     else
     {
-        oss << name << "_Pe_" << Pe << "_S_" << scheme << "_M_" << M << "_type_" << type << ".csv";
+        oss << name << "_Pe_" << Pe << "_S_" << scheme << "_M_" << M << "_type_" << type << "_t_" << delta_t << ".csv";
     }
 
     std::string var = oss.str();
@@ -183,8 +176,9 @@ string file_name(double Pe, string scheme, string name, string type)
 /**
  * Prints the value of phi in the mesh graphically, like a matrix
  *
- * @param mesh Mesh matrix at time t
- **/
+ * @param values Matrix (Vector of vectors) containing the phi values
+ */
+
 void print_phi_matrix(vector<vector<double>> &values)
 {
     for (int i = 0; i < N; i++)

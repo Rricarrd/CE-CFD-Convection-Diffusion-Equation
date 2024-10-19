@@ -51,7 +51,7 @@ phi = reshape(flip(phi),[M-2,N-2]);
 figure(n_fig)
 
 %Contour plotting
-pcol = pcolor(X+add_x,Y+add_y,phi);
+pcol = pcolor(X+add_x,(Y+add_y)/2,phi);
 set(pcol,'EdgeColor', 'none');
 
 

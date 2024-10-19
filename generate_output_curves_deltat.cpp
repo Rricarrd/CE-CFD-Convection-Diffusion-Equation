@@ -20,20 +20,17 @@ using namespace std::chrono;
  */
 int main(void)
 {
-    double Pe[] = {10, 1000, 1000000};               // peclet numbers
+    double Pe = 1000;                                // peclet numbers
     string schemes[] = {"UDS", "CDS", "HDS", "PDS"}; // scheme to be used
-    string type = "smith-hutton";                    // type of problem
-
-    for (int k = 0; k < 3; k++)
+    string type = "smith-hutton";
+    double delta_t[] = {0.0001}; // type of problem
+    double gamma = rho / Pe;
+    for (int k = 0; k < 4; k++)
     {
-        cout << "### SMITH-HUTTON FLOW CALCULATIONS STARTING ###" << endl;
-        ofstream outfile("schemes/" + file_name(Pe[k], "COMPARISON", "SCHEMES", type));
-        double gamma = rho / Pe[k];
+        ofstream outfile("deltat/" + file_name(Pe, "COMPARISON_delta", "SCHEMES", type, delta_t[k]));
 
-        cout << "### CALCULATING FOR Pe = " << Pe[k] << "###" << endl;
         for (int i = 0; i < 5; i++)
         {
-            cout << "### CALCULATING FOR SCHEME = " << schemes[i] << "###" << endl;
             // Main mesh
             vector<vector<vector<node>>> mesh(time_steps, vector<vector<node>>(N, vector<node>(M)));
             build_mesh(mesh, type); // creating the mesh
@@ -42,7 +39,7 @@ int main(void)
 
             // Compute stream function
             auto start = high_resolution_clock::now();
-            compute_diffusive_convective(mesh, gamma, delta_t, schemes[i], type); // stream solver
+            compute_diffusive_convective(mesh, gamma, delta_t[k], schemes[i], type); // stream solver
             auto stop = high_resolution_clock::now();
             auto duration = duration_cast<microseconds>(stop - start);
 

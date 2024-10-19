@@ -1,9 +1,9 @@
-// Last update: 2024/10/17
+// Last update: 2024/10/19
 // Author: Ricard Arbat Carandell
 
 // Master in Aerospace Engineering - Computational Engineering
 // Universitat Politècnica de Catalunya (UPC) - BarcelonaTech
-// Overview: Solution of the Smth-Hutton problem using the convection-diffusuion equations.
+// Overview: Main function to solve the convection-diffusion problem.
 
 // Libraries
 #include <iostream>
@@ -44,7 +44,7 @@ int main(void)
 
     // Compute stream function
     auto start = high_resolution_clock::now();
-    compute_diffusive_convective(mesh, gamma, scheme, type); // stream solver
+    compute_diffusive_convective(mesh, gamma, delta_t, scheme, type); // stream solver
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<microseconds>(stop - start);
 

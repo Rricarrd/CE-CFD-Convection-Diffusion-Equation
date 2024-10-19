@@ -1,5 +1,5 @@
 % Parameters
-M = 64;
+M = 16;
 t = "last";
 type="smith-hutton";
 scheme="HDS";

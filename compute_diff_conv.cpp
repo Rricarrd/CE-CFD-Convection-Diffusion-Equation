@@ -1,4 +1,4 @@
-// Last update: 2024/10/17
+// Last update: 2024/10/19
 // Author: Ricard Arbat Carandell
 
 // Master in Aerospace Engineering - Computational Engineering
@@ -20,17 +20,21 @@ double eds(double P);
 double pds(double P);
 double calculate_error(vector<vector<double>> v1, vector<vector<double>> v2);
 void fill_values_at_t(vector<vector<double>> &values, double value);
-void evaluate_time_step_smith_hutton(int t, vector<vector<vector<node>>> &mesh, double gamma, string scheme);
+void evaluate_time_step_smith_hutton(int t, vector<vector<vector<node>>> &mesh, double gamma, double delta_t, string scheme);
 void evaluate_time_step_diagonal(int t, vector<vector<vector<node>>> &mesh, double gamma, string scheme);
 
 /**
- * Computes the stream function of the mesh nodes. It uses the discretized stream function
- * equation to solve the stream values of the nodes. The function iterates until the error
- * is below a certain threshold.
+ * Computes iterates the evalueate time step function for each time step.
+ * Also selects the type of problem to solve.
  *
  * @param mesh Mesh matrix (vector of vectors)
+ * @param gamma Diffusion coefficient
+ * @param delta_t Time step size
+ * @param scheme Scheme to be used
+ * @param type Type of problem
  */
-void compute_diffusive_convective(vector<vector<vector<node>>> &mesh, double gamma, string scheme, string type) // type of problem)
+
+void compute_diffusive_convective(vector<vector<vector<node>>> &mesh, double gamma, double delta_t, string scheme, string type)
 {
 
     // Time loop
@@ -38,7 +42,7 @@ void compute_diffusive_convective(vector<vector<vector<node>>> &mesh, double gam
     {
         if (type == "smith-hutton")
         {
-            evaluate_time_step_smith_hutton(t, mesh, gamma, scheme);
+            evaluate_time_step_smith_hutton(t, mesh, gamma, delta_t, scheme);
         }
         else if (type == "diagonal")
         {
@@ -48,15 +52,16 @@ void compute_diffusive_convective(vector<vector<vector<node>>> &mesh, double gam
 }
 
 /**
- * Evaluates the time step of the mesh
+ * Evaluates the time step of the mesh for the Smith-Hutton problem.
+ * Iterates over the mesh and calculates the new phi value for each node using the selected scheme.
  *
  * @param t Time instant of the simulation
  * @param mesh Mesh matrix (vector of vectors)
- * @param convergence_criteria Maximum delta for the error
- * @param Pe Peclet number
+ * @param gamma Diffusion coefficient
+ * @param delta_t Time step size
+ * @param scheme Scheme to be used
  */
-
-void evaluate_time_step_smith_hutton(int t, vector<vector<vector<node>>> &mesh, double gamma, string scheme)
+void evaluate_time_step_smith_hutton(int t, vector<vector<vector<node>>> &mesh, double gamma, double delta_t, string scheme)
 {
     // Initializing variables for each iteration
     double aE, aW, aN, aS, aP, aP0, b;
@@ -216,6 +221,15 @@ void evaluate_time_step_smith_hutton(int t, vector<vector<vector<node>>> &mesh, 
     }
 }
 
+/**
+ * Evaluates the time step of the mesh for the diagonal flow problem.
+ * Iterates over the mesh and calculates the new phi value for each node using the selected scheme.
+ *
+ * @param t Time instant of the simulation
+ * @param mesh Mesh matrix (vector of vectors)
+ * @param gamma Diffusion coefficient
+ * @param scheme Scheme to be used
+ */
 void evaluate_time_step_diagonal(int t, vector<vector<vector<node>>> &mesh, double gamma, string scheme)
 {
     // Initializing variables for each iteration
@@ -406,21 +420,26 @@ void fill_values_at_t(vector<vector<double>> &values, double value)
 }
 
 // Schemes
+
+// Central Difference Scheme
 double cds(double P)
 {
     return 1 - 0.5 * abs(P);
 }
 
+// Hybrid Difference Scheme
 double hds(double P)
 {
     return max(1 - 0.5 * abs(P), 0.0);
 }
 
+// Power Difference Scheme
 double pds(double P)
 {
     return max(pow(1 - 0.5 * abs(P), 5), 0.0);
 }
 
+// Exponential Difference Scheme
 double eds(double P)
 {
     double val = abs(P) / (exp(abs(P)) - 1) + 0.0000000000001;

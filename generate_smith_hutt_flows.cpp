@@ -25,8 +25,10 @@ int main(void)
     string scheme = "HDS";                                    // scheme to be used
     string type = "smith-hutton";                             // type of problem
 
+    cout << "### SMITH-HUTTON FLOW CALCULATIONS STARTING ###" << endl;
     for (int i = 0; i < 3; i++)
     {
+        cout << "### CALCULATING FOR Pe = " << Pe[i] << "###" << endl;
         // Main mesh
         vector<vector<vector<node>>> mesh(time_steps, vector<vector<node>>(N, vector<node>(M)));
         build_mesh(mesh, type); // creating the mesh
@@ -35,7 +37,7 @@ int main(void)
 
         // Compute stream function
         auto start = high_resolution_clock::now();
-        compute_diffusive_convective(mesh, gamma[i], scheme, type); // stream solver
+        compute_diffusive_convective(mesh, gamma[i], delta_t, scheme, type); // stream solver
         auto stop = high_resolution_clock::now();
         auto duration = duration_cast<microseconds>(stop - start);
 

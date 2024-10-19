@@ -40,7 +40,7 @@ int main(void)
 
         // Compute stream function
         auto start = high_resolution_clock::now();
-        compute_diffusive_convective(mesh, gamma[i], scheme, type); // stream solver
+        compute_diffusive_convective(mesh, gamma[i], delta_t, scheme, type); // stream solver
         auto stop = high_resolution_clock::now();
         auto duration = duration_cast<microseconds>(stop - start);
 
