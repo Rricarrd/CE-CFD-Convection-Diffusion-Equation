@@ -22,24 +22,34 @@ using namespace std::chrono;
 int main(void)
 {
 
-    double rho_to_gamma = 1;           // density to gamma ratio
-    double gamma = rho / rho_to_gamma; // diffusion coefficient
-    string scheme = "PDS";             // scheme to be used
+    double Pe = 1000000;      // peclet number
+    double gamma = rho / Pe;  // diffusion coefficient
+    string scheme = "PDS";    // scheme to be used
+    string type = "diagonal"; // type of problem
+
+    if (type == "smith-hutton")
+    {
+        N = 2 * M;
+    }
+    else if (type == "diagonal")
+    {
+        N = M;
+    }
 
     // Main mesh
     vector<vector<vector<node>>> mesh(time_steps, vector<vector<node>>(N, vector<node>(M)));
-    build_mesh(mesh); // creating the mesh
-    set_smith_hutton_problem(mesh);
-    set_mesh_value(mesh[0], 1, "phi");
+    build_mesh(mesh, type); // creating the mesh
+
+    set_mesh_value(mesh[0], initial_phi, "phi");
 
     // Compute stream function
     auto start = high_resolution_clock::now();
-    compute_diffusive_convective(mesh, gamma, scheme); // stream solver
+    compute_diffusive_convective(mesh, gamma, scheme, type); // stream solver
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<microseconds>(stop - start);
 
     // Export data
-    export_data(mesh, file_name(time_steps, "output"));
+    export_data(mesh, file_name(Pe, scheme, "output", type), "output", "last");
 
     // Print final results
     cout << "### CONVECTION DIFFUSION FLOW RESULTS ###" << endl;
